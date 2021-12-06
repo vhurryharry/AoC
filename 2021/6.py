@@ -15,9 +15,8 @@ def init_ages(lanternfish):
 
 
 def new_day(ages):
-    new_fish = ages[0]
     ages = np.roll(ages, -1)
-    ages[6] += new_fish
+    ages[6] += ages[8]
 
     return ages
 
