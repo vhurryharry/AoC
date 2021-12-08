@@ -8,6 +8,16 @@ lines = input.splitlines()
 
 digits = [[part.split(' ') for part in line.split(' | ')] for line in lines]
 
+#               1
+#           ---------
+#           |       |
+#         6 |       | 2
+#           |_______|
+#           |   0   |
+#         5 |       | 3
+#           |_______|
+#               4
+
 
 def count_unique_numbers(digits):
     count = 0
