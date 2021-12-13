@@ -45,18 +45,19 @@ def count_routes(node, steps, nodes, edges):
     count = 0
     for new_node in range(1, len(nodes)):
         if edges[node][new_node] == 1:
-            new_steps = np.copy(steps)
 
             if nodes[new_node].isupper():
-                count += count_routes(new_node, new_steps, nodes, edges)
+                count += count_routes(new_node, steps, nodes, edges)
             else:
                 if steps[new_node] == 0:
-                    new_steps[new_node] += 1
-                    count += count_routes(new_node, new_steps, nodes, edges)
+                    steps[new_node] += 1
+                    count += count_routes(new_node, steps, nodes, edges)
+                    steps[new_node] -= 1
                 # part two
                 elif steps[new_node] == 1 and np.count_nonzero(steps > 1) == 0:
-                    new_steps[new_node] += 1
-                    count += count_routes(new_node, new_steps, nodes, edges)
+                    steps[new_node] += 1
+                    count += count_routes(new_node, steps, nodes, edges)
+                    steps[new_node] -= 1
 
     return count
 
