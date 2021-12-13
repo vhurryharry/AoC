@@ -83,7 +83,7 @@ def fold_paper(paper, folds):
 def format_point(value):
     if value > 0:
         return '#'
-    return '.'
+    return ' '
 
 
 paper = make_paper(sections[0])
