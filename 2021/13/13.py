@@ -42,32 +42,13 @@ def get_folds(section):
 
 def fold_paper_once(paper, fold):
     if fold[0] == 'x':
-        sx = max(fold[1], len(paper[0]) - fold[1] - 1)
-        ox = max(0, len(paper[0]) - 2 * fold[1] - 1)
-        sy = len(paper)
+        new_paper = paper[:, :fold[1]]
+        new_paper[:, 2 * fold[1] -
+                  len(paper[0]) + 1:] += np.fliplr(paper[:, fold[1] + 1:])
     else:
-        sx = len(paper[0])
-        sy = max(fold[1], len(paper) - fold[1] - 1)
-        oy = max(0, len(paper) - 2 * fold[1] - 1)
-
-    new_paper = np.zeros(shape=(sy, sx))
-
-    for i in range(sy):
-        for j in range(sx):
-            if fold[0] == 'x':
-                new_paper[i, j] = 0
-
-                if 2 * sx - j + ox < len(paper[0]):
-                    new_paper[i, j] += paper[i, 2 * sx - j + ox]
-                if j >= ox:
-                    new_paper[i, j] += paper[i, j - ox]
-            else:
-                new_paper[i, j] = 0
-
-                if 2 * sy - i + oy < len(paper):
-                    new_paper[i, j] += paper[2 * sy - i + oy, j]
-                if i >= oy:
-                    new_paper[i, j] += paper[i - oy, j]
+        new_paper = paper[:fold[1], :]
+        new_paper[2 * fold[1] - len(paper) + 1:,
+                  :] += np.flipud(paper[fold[1] + 1:, :])
 
     return new_paper
 
