@@ -1,8 +1,6 @@
 import numpy as np
 import re
 
-from numpy.core.fromnumeric import shape
-
 with open('13.in') as infile:
     input = infile.read()
 
