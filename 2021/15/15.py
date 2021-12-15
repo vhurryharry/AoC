@@ -1,4 +1,5 @@
 import numpy as np
+import bisect
 
 with open('15.in') as infile:
     input = infile.read()
@@ -14,7 +15,7 @@ matrix = np.array(matrix)
 
 
 def navigate(matrix):
-    queue = [[0, 0]]
+    queue = [[0, 0, 0]]
 
     distance = np.copy(matrix)
     distance.fill(np.sum(matrix))
@@ -26,12 +27,7 @@ def navigate(matrix):
     dirs = [[-1, 0], [1, 0], [0, -1], [0, 1]]
 
     while len(queue) > 0:
-        aqueue = np.array(queue)
-        unvisited = distance[aqueue[:, 0], aqueue[:, 1]]
-        [x, y] = queue.pop(np.argmin(unvisited))
-
-        if x == len(matrix) - 1 and y == len(matrix[0]) - 1:
-            break
+        [value, x, y] = queue.pop(0)
 
         for dir in dirs:
             nx = x + dir[0]
@@ -39,9 +35,9 @@ def navigate(matrix):
 
             if nx >= 0 and nx < len(matrix) and ny >= 0 and ny < len(matrix[0]):
                 distance[nx, ny] = min(
-                    distance[nx, ny], distance[x, y] + matrix[nx, ny])
+                    distance[nx, ny], value + matrix[nx, ny])
                 if added[nx, ny] == 0:
-                    queue.append([nx, ny])
+                    bisect.insort(queue, [distance[nx, ny], nx, ny])
                     added[nx, ny] = 1
 
     return distance
