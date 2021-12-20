@@ -1,6 +1,6 @@
 import math
 
-with open('18.test3') as infile:
+with open('18.in') as infile:
     input = infile.read()
 
 
@@ -88,16 +88,17 @@ def update_right_number(pair: list, stack: list, right: int):
     current.value.value += right
 
 
-def reduce_pair_once(pair: list, stack: list):
+def reduce_pair_once(pair: list, stack: list, allowSplit: bool):
     current = pair
 
     for level in stack:
         current = current.value.left if level == 0 else current.value.right
 
     curval = current.value
+
     if isinstance(curval, Pair):
         if isinstance(curval.left.value, Number) and isinstance(curval.right.value, Number):
-            if len(stack) >= 4:  # explode
+            if len(stack) == 4:  # explode
                 update_left_number(pair, stack.copy(), curval.left.value.value)
                 update_right_number(pair, stack.copy(),
                                     curval.right.value.value)
@@ -105,37 +106,26 @@ def reduce_pair_once(pair: list, stack: list):
 
                 return pair, 1
 
-        if isinstance(curval.left.value, Number):
-            if curval.left.value.value > 9:
-                curval.left.value = Pair([Node(Number(math.floor(
-                    curval.left.value.value / 2))), Node(Number(math.ceil(curval.left.value.value / 2)))])
+        stack.append(0)
+        pair, action_type = reduce_pair_once(pair, stack, allowSplit)
 
-                return pair, 2
+        if action_type > 0:
+            return pair, action_type
+        stack.pop()
 
-        if isinstance(curval.right.value, Number):
-            if curval.right.value.value > 9:
-                curval.right.value = Pair([Node(Number(math.floor(
-                    curval.right.value.value / 2))), Node(Number(math.ceil(curval.right.value.value / 2)))])
+        stack.append(1)
+        pair, action_type = reduce_pair_once(pair, stack, allowSplit)
 
-                return pair, 2
+        if action_type > 0:
+            return pair, action_type
+        stack.pop()
 
-        if isinstance(curval.left.value, Pair):
-            stack.append(0)
-            pair, action_type = reduce_pair_once(pair, stack)
+    elif allowSplit and isinstance(curval, Number):
+        if curval.value > 9:     # split
+            current.value = Pair([Node(Number(math.floor(
+                curval.value / 2))), Node(Number(math.ceil(curval.value / 2)))])
 
-            if action_type > 0:
-                return pair, action_type
-
-            stack.pop()
-
-        if isinstance(curval.right.value, Pair):
-            stack.append(1)
-            pair, action_type = reduce_pair_once(pair, stack)
-
-            if action_type > 0:
-                return pair, action_type
-
-            stack.pop()
+            return pair, 2
 
     return pair, 0
 
@@ -143,17 +133,16 @@ def reduce_pair_once(pair: list, stack: list):
 def reduce_pair(pair):
     action_type = 1
 
-    print(convert_pair(pair))
-
     while action_type > 0:
-        pair, action_type = reduce_pair_once(pair, [])
-        print(convert_pair(pair))
+        pair, action_type = reduce_pair_once(pair, [], False)
+        if action_type == 0:
+            pair, action_type = reduce_pair_once(pair, [], True)
 
     return pair
 
 
 def sum_sf_numbers(num1, num2):
-    return "[" + num1 + "," + num2 + "]"
+    return reduce_pair(Node(Pair([num1, num2])))
 
 
 def sum_multi_sf_numbers(pairs):
@@ -163,12 +152,38 @@ def sum_multi_sf_numbers(pairs):
         if result == 0:
             result = pair
         else:
-            result = reduce_pair(sum_sf_numbers(result, pair))
-            break
+            result = sum_sf_numbers(result, pair)
 
     return result
 
 
+def magnitude(pair):
+    if isinstance(pair, int):
+        return pair
+
+    return 3 * magnitude(pair[0]) + 2 * magnitude(pair[1])
+
+
+def max_magnitude(lines):
+    max_mag = 0
+
+    for i in range(len(lines)):
+        for j in range(len(lines)):
+            if i != j:
+                mag = magnitude(convert_pair(
+                    sum_sf_numbers(get_sf_numbers(lines[i]), get_sf_numbers(lines[j]))))
+
+                if mag > max_mag:
+                    max_mag = mag
+
+    return max_mag
+
+
 pairs = list(map(get_sf_numbers, input.splitlines()))
-reduce_pair(pairs[0])
-# print(convert_pair(pairs[0]))
+
+# part 1
+result = sum_multi_sf_numbers(pairs)
+print(magnitude(convert_pair(result)))
+
+# part 2
+print(max_magnitude(input.splitlines()))
